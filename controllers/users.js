@@ -36,7 +36,9 @@ module.exports.profileUpdate = (req, res, next) => {
         },
       });
     }).catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
+      if (err.code === 11000) {
+        next(new ConflictError('This email is already taken'));
+      } else if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Parameters error'));
       } else {
         next(err);
@@ -88,4 +90,13 @@ module.exports.login = (req, res, next) => {
         .send({ email });
     })
     .catch(next);
+};
+
+module.exports.logout = (req, res, next) => {
+  try {
+    res.clearCookie('jwt')
+      .send();
+  } catch (error) {
+    next(error);
+  }
 };

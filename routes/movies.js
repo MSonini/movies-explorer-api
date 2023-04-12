@@ -21,11 +21,11 @@ router.post('/', celebrate({
     year: string.required(),
     description: string.required(),
     image: link.required(),
-    trailer: link.required(),
+    trailerLink: link.required(),
     nameRU: string.required(),
     nameEN: string.required(),
     thumbnail: link.required(),
-    movieId: string.required(),
+    movieId: number.required(),
   }),
 }), createMovie);
 

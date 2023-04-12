@@ -18,7 +18,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => {
       Movie.populate(movie, { path: 'owner' }).then((populatedMovie) => {
         res.send({ data: populatedMovie });
-      });
+      }).catch(next);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -30,7 +30,7 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.movieId).populate(['owner', 'likes'])
+  Movie.findById(req.params.movieId).populate(['owner'])
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError('Object Not Found');
@@ -39,14 +39,15 @@ module.exports.deleteMovie = (req, res, next) => {
       const ownerId = movie.owner._id;
       if (userId !== ownerId.toString()) {
         throw new ForbiddenError('Not allowed');
+      } else {
+        Movie.deleteOne({ _id: movie._id }).then(({ deletedCount }) => {
+          if (deletedCount === 0) {
+            throw new BadRequestError('Deletion error');
+          } else {
+            res.send({ data: movie });
+          }
+        }).catch(next);
       }
-      Movie.deleteOne({ _id: movie._id }).then(({ deletedCount }) => {
-        if (deletedCount === 0) {
-          throw new BadRequestError('Deletion error');
-        } else {
-          res.send({ data: movie });
-        }
-      });
     })
     .catch((error) => {
       if (error instanceof mongoose.Error.CastError) {

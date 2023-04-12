@@ -19,3 +19,5 @@ module.exports.ALLOWED_CORS = [
 ];
 
 module.exports.DEV_JWT_SECRET = require('crypto').randomBytes(32).toString('hex');
+
+module.exports.DEV_DB_ADDRESS = 'mongodb://localhost:27017/bitfilmsdb';

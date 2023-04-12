@@ -5,12 +5,15 @@ const cookieParser = require('cookie-parser');
 const errorHandler = require('./middlewares/errorHandler');
 const { authRouter, moviesRouter, usersRouter } = require('./routes/index');
 const auth = require('./middlewares/auth');
+const { logout } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-error');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const cors = require('./middlewares/cors');
+const { DEV_DB_ADDRESS } = require('./utils/constants');
 require('dotenv').config();
 
-mongoose.connect('mongodb://localhost:27017/moviesdb');
+const { NODE_ENV, DB_ADDRESS } = process.env;
+mongoose.connect(NODE_ENV === 'production' ? DB_ADDRESS : DEV_DB_ADDRESS);
 
 const app = express();
 
@@ -25,6 +28,7 @@ app.use('/', authRouter);
 
 app.use(auth);
 
+app.post('/signout', logout);
 app.use('/users', usersRouter);
 app.use('/movies', moviesRouter);
 
